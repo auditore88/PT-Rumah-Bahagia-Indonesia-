@@ -20,7 +20,57 @@ exports.getTimesheets = async (req, res) => {
     }
 };
 
+exports.updateTimesheet = async (req, res) => {
+    const { id } = req.params;
+    const { projectId, date, hours } = req.body;
+
+    try {
+        const timesheet = await Timesheet.findByPk(id);
+        if (!timesheet) {
+            return res.status(404).send({ message: "Timesheet not found" });
+        }
+        timesheet.projectId = projectId;
+        timesheet.date = date;
+        timesheet.hours = hours;
+        await timesheet.save();
+
+        res.send(timesheet);
+    } catch (error) {
+        res.status(500).send(error);
+    }
+};
+
+exports.deleteTimesheet = async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        const timesheet = await Timesheet.findByPk(id);
+        if (!timesheet) {
+            return res.status(404).send({ message: "Timesheet not found" });
+        }
+        await timesheet.destroy();
+
+        res.send({ message: "Timesheet deleted successfully" });
+    } catch (error) {
+        res.status(500).send(error);
+    }
+};
+
 // Calculate overtime
 exports.calculateOvertime = (timesheets) => {
-    // Implement overtime calculation logic here
+    const overtimeRate = 1.3;
+    let totalOvertimeHours = 0;
+    let totalOvertimePayment = 0;
+
+    timesheets.forEach(timesheet => {
+        const { hours, date, Project } = timesheet;
+        const workHours = Math.min(8, hours);
+        const overtimeHours = Math.max(0, hours - workHours);
+        const overtimePayment = overtimeHours * Project.rate * overtimeRate;
+
+        totalOvertimeHours += overtimeHours;
+        totalOvertimePayment += overtimePayment;
+    });
+
+    return { totalOvertimeHours, totalOvertimePayment };
 };
