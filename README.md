@@ -20,7 +20,3 @@ Run Frontend:
 
 cd timesheet-frontend
 npm start
-<<<<<<< HEAD
-=======
-
->>>>>>> origin/main
