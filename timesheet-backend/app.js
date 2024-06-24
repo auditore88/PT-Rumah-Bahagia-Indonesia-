@@ -8,7 +8,7 @@ const app = express();
 app.use(cors());
 app.use(bodyParser.json());
 
-app.use('', routes);
+app.use('/api', routes);
 
 sequelize.sync().then(() => {
     app.listen(4000, () => {
